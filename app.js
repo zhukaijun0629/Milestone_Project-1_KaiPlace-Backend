@@ -1,7 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
-const MANGODB_URL =
+const MONGODB_URL =
   "mongodb+srv://MERN-Backend:YnzYmvXSFYYkJuWn@cluster0.hfwtj.mongodb.net/places?retryWrites=true&w=majority";
 
 const placesRoutes = require("./routes/places-routes");
@@ -32,7 +32,7 @@ app.use((error, req, res, next) => {
 });
 
 mongoose
-  .connect(MANGODB_URL, { useNewUrlParser: true, useUnifiedTopology: true })
+  .connect(MONGODB_URL, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
     app.listen(5000);
     console.log("Connected to database!");
