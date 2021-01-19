@@ -1,5 +1,8 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
+const MANGODB_URL =
+  "mongodb+srv://MERN-Backend:YnzYmvXSFYYkJuWn@cluster0.hfwtj.mongodb.net/places?retryWrites=true&w=majority";
 
 const placesRoutes = require("./routes/places-routes");
 const usersRoutes = require("./routes/users-routes");
@@ -11,8 +14,7 @@ app.use(bodyParser.json());
 
 app.use("/api/users", usersRoutes);
 
-app.use("/api/places", placesRoutes); 
-
+app.use("/api/places", placesRoutes);
 
 // Error hanlding for unsupported routes
 app.use((req, res, next) => {
@@ -29,4 +31,12 @@ app.use((error, req, res, next) => {
   res.json({ message: error.message || "An unknown error occurred!" });
 });
 
-app.listen(5000);
+mongoose
+  .connect(MANGODB_URL, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => {
+    app.listen(5000);
+    console.log("Connected to database!");
+  })
+  .catch((err) => {
+    console.log(err);
+  });
