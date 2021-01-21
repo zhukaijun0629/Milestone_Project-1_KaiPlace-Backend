@@ -1,0 +1,9 @@
+{
+  "env": {
+    "DB_USER": "MERN-Backend",
+    "DB_PASSWORD": "YnzYmvXSFYYkJuWn",
+    "DB_NAME": "mern-test",
+    "GOOGLE_API_KEY": "AIzaSyDt-M5ISSolntYkk6vONfP5AayWp9OB1sI",
+    "JWT_KEY": "supersecret_dont_share"
+  }
+}
