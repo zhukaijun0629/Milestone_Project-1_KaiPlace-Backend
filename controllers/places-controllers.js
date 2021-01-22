@@ -1,3 +1,4 @@
+const aws = require("aws-sdk");
 const fs = require("fs");
 
 const { validationResult } = require("express-validator");
@@ -95,8 +96,8 @@ const createPlace = async (req, res, next) => {
     description,
     location: coordinates,
     address,
-    image: req.file.path,
-    creator: req.userData.userId
+    image: req.file.location,
+    creator: req.userData.userId,
   });
 
   let user;
@@ -116,7 +117,7 @@ const createPlace = async (req, res, next) => {
     return next(error);
   }
 
-  console.log(user);
+  // console.log(user);
 
   try {
     const sess = await mongoose.startSession();
@@ -200,11 +201,12 @@ const deletePlace = async (req, res, next) => {
   }
 
   if (place.creator.id !== req.userData.userId) {
-    const error = new HttpError("You are not allowed to delete this place.", 401);
+    const error = new HttpError(
+      "You are not allowed to delete this place.",
+      401
+    );
     return next(error);
   }
-
-  const imagePath = place.image;
 
   try {
     const sess = await mongoose.startSession();
@@ -221,9 +223,29 @@ const deletePlace = async (req, res, next) => {
     return next(error);
   }
 
-  fs.unlink(imagePath, (err) => {
-    console.log(err);
+  // fs.unlink(imagePath, (err) => {
+  //   console.log(err);
+  // });
+
+  const imagePath = place.image;
+  const fileName = imagePath.split(".com/").slice(-1)[0];
+
+  aws.config.update({
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    region: "us-east-1",
   });
+
+  const s3 = new aws.S3({});
+  s3.deleteObject(
+    {
+      Bucket: process.env.S3_BUCKET_NAME,
+      Key: fileName,
+    },
+    (err, data) => {
+      if (err) console.log(err);
+    }
+  );
 
   res.status(200).json({ message: "Deleted place." });
 };
