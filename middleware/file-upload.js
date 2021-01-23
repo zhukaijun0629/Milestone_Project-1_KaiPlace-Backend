@@ -17,6 +17,13 @@ const MIME_TYPE_MAP = {
   "image/jpg": "jpg",
 };
 
+const multerFilter = (req, file, cb) => {
+  const isValid = !!MIME_TYPE_MAP[file.mimetype];
+  //!! turns undefinied/null to false, others to true
+  let error = isValid ? null : new Error("Invalid mime type!");
+  cb(error, isValid);
+};
+
 const fileUpload = multer({
   limits: 500000,
   storage: multerS3({
@@ -33,12 +40,7 @@ const fileUpload = multer({
       );
     },
   }),
-  fileFilter: (req, file, cb) => {
-    const isValid = !!MIME_TYPE_MAP[file.mimetype];
-    //!! turns undefinied/null to false, others to true
-    let error = isValid ? null : new Error("Invalid mime type!");
-    cb(error, isValid);
-  },
+  fileFilter: multerFilter,
 });
 
 module.exports = fileUpload;

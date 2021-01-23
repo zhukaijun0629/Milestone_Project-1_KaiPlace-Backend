@@ -82,7 +82,7 @@ const createPlace = async (req, res, next) => {
     );
   }
 
-  const { title, description, address } = req.body;
+  const { description, address } = req.body;
 
   let coordinates;
   try {
@@ -92,7 +92,6 @@ const createPlace = async (req, res, next) => {
   }
 
   const createdPlace = new Place({
-    title,
     description,
     location: coordinates,
     address,
@@ -146,7 +145,7 @@ const updatePlace = async (req, res, next) => {
     );
   }
 
-  const { title, description } = req.body;
+  const { description } = req.body;
   const placeId = req.params.pid;
 
   let place;
@@ -165,7 +164,6 @@ const updatePlace = async (req, res, next) => {
     return next(error);
   }
 
-  place.title = title;
   place.description = description;
 
   try {
