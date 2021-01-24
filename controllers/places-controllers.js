@@ -9,6 +9,36 @@ const getCoordsForAddress = require("../util/location");
 const Place = require("../models/place");
 const User = require("../models/user");
 
+const getRecentPlaces = async (req, res, next) => {
+  const userId = req.params.uid;
+
+  let recentPlaces;
+  try {
+    recentPlaces = await Place.find()
+      .sort({ createdAt: "desc" })
+      .limit(10)
+      .populate({ path: "creator", select: "id name image" })
+      .exec();
+  } catch (err) {
+    const error = new HttpError(
+      "Fetching places failed, please try again later",
+      500
+    );
+    return next(error);
+  }
+
+  if (!recentPlaces || recentPlaces.length === 0) {
+    return next(
+      new HttpError("Could not find any places, please try again later", 404)
+    );
+  }
+
+  res.json({
+    places: recentPlaces.map((place) => place.toObject({ getters: true })),
+    // creatorImages: recentPlaces.creator.image
+  });
+};
+
 const getPlaceById = async (req, res, next) => {
   const placeId = req.params.pid;
 
@@ -37,33 +67,17 @@ const getPlaceById = async (req, res, next) => {
 const getPlacesByUserId = async (req, res, next) => {
   const userId = req.params.uid;
 
-  // let places;
-  // try {
-  //   places = await Place.find({ creator: userId });
-  // } catch (err) {
-  //   const error = new HttpError(
-  //     "Fetching places failed, please try again later",
-  //     500
-  //   );
-  //   return next(error);
-  // }
-
   let userWithPlaces;
   try {
-    userWithPlaces = await User.findById(userId).populate("places");
+    userWithPlaces = await User.findById(userId)
+      .populate({ path: "places", options: { sort: { createdAt: -1 } } })
+      .exec();
   } catch (err) {
     const error = new HttpError(
       "Fetching places failed, please try again later",
       500
     );
     return next(error);
-  }
-
-  // if (!places || places.length === 0) {
-  if (!userWithPlaces || userWithPlaces.places.length === 0) {
-    return next(
-      new HttpError("Could not find place(s) for the provided user id", 404)
-    );
   }
 
   res.json({
@@ -145,7 +159,7 @@ const updatePlace = async (req, res, next) => {
     );
   }
 
-  const { description } = req.body;
+  const { description, address } = req.body;
   const placeId = req.params.pid;
 
   let place;
@@ -164,7 +178,16 @@ const updatePlace = async (req, res, next) => {
     return next(error);
   }
 
+  let coordinates;
+  try {
+    coordinates = await getCoordsForAddress(address);
+  } catch (error) {
+    return next(error);
+  }
+
   place.description = description;
+  place.address = address;
+  place.location = coordinates;
 
   try {
     await place.save();
@@ -248,6 +271,7 @@ const deletePlace = async (req, res, next) => {
   res.status(200).json({ message: "Deleted place." });
 };
 
+exports.getRecentPlaces = getRecentPlaces;
 exports.getPlaceById = getPlaceById;
 exports.getPlacesByUserId = getPlacesByUserId;
 exports.createPlace = createPlace;

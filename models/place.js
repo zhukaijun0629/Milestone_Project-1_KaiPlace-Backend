@@ -10,6 +10,7 @@ const placeSchema = new Schema({
     lat: { type: Number, required: true },
     lng: { type: Number, required: true },
   },
+  createdAt: { type: Date, required: true, default: Date.now },
   creator: { type: mongoose.Types.ObjectId, required: true, ref: "User" },
 });
 
