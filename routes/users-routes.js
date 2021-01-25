@@ -8,6 +8,8 @@ const router = express.Router();
 
 router.get("/", usersControllers.getUsers);
 
+router.get("/:uid", usersControllers.getUserById);
+
 router.post(
   "/signup",
   fileUpload.single("image"),
@@ -21,7 +23,16 @@ router.post(
 
 router.post("/login", usersControllers.login);
 
-// router.patch("/:uid", usersControllers.updateUser);
+router.patch(
+  "/:uid",
+  fileUpload.single("image"),
+  [
+    check("name").not().isEmpty(),
+    check("old_password").isLength({ min: 6 }),
+    check("new_password").isLength({ min: 6 }),
+  ],
+  usersControllers.updateUser
+);
 
 // router.delete("/:uid", usersControllers.deleteUser;
 
