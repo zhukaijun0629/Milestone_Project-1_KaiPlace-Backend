@@ -12,6 +12,7 @@ const placeSchema = new Schema({
   },
   createdAt: { type: Date, required: true, default: Date.now },
   creator: { type: mongoose.Types.ObjectId, required: true, ref: "User" },
+  dateTakenAt: { type: Date, required: true, default: Date.now },
 });
 
 module.exports = mongoose.model("Place", placeSchema);
