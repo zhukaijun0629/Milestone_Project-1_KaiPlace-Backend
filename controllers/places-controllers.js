@@ -98,7 +98,7 @@ const createPlace = async (req, res, next) => {
   const { description, address, lat, lng, dateTakenAt } = req.body;
 
   let coordinates;
-  if (!lat || !lng ||lat === "" || lng === "" ) {
+  if (!lat || !lng || lat === "" || lng === "") {
     try {
       coordinates = await getCoordsForAddress(address);
     } catch (error) {
@@ -108,7 +108,7 @@ const createPlace = async (req, res, next) => {
 
   const createdPlace = new Place({
     description,
-    location: coordinates || {lat, lng},
+    location: coordinates || { lat, lng },
     address,
     image: req.file.location,
     creator: req.userData.userId,
@@ -181,15 +181,17 @@ const updatePlace = async (req, res, next) => {
   }
 
   let coordinates;
-  try {
-    coordinates = await getCoordsForAddress(address);
-  } catch (error) {
-    return next(error);
+  if (place.address !== address) {
+    try {
+      coordinates = await getCoordsForAddress(address);
+      place.address = address;
+      place.location = coordinates;
+    } catch (error) {
+      return next(error);
+    }
   }
 
   place.description = description;
-  place.address = address;
-  place.location = coordinates;
   place.dateTakenAt = dateTakenAt;
 
   try {
