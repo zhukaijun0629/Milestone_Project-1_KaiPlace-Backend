@@ -16,6 +16,7 @@ const getRecentPlaces = async (req, res, next) => {
   try {
     recentPlaces = await Place.find()
       .sort({ createdAt: "desc" })
+      .limit(10)
       .populate({ path: "creator", select: "id name image" })
       .exec();
   } catch (err) {
