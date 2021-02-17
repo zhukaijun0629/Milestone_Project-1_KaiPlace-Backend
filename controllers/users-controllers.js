@@ -9,7 +9,8 @@ const getUsers = async (req, res, next) => {
   // res.json({ users: DUMMY_USERS });
   let users;
   try {
-    users = await User.find({}, "-password");
+    users = await User.find({}, "-password")
+    users.sort((u1, u2) => u2.places.length - u1.places.length || u1.name.localeCompare(u2.name))
   } catch (err) {
     const error = new HttpError(
       "Fetching users failed, please try again later.",
