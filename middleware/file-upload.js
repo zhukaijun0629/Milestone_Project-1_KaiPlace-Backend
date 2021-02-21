@@ -30,6 +30,7 @@ const fileUpload = multer({
     s3: s3,
     acl: "public-read",
     bucket: process.env.S3_BUCKET_NAME,
+    cacheControl: 'max-age=604800',
     key: (req, file, cb) => {
       const ext = MIME_TYPE_MAP[file.mimetype];
       cb(
